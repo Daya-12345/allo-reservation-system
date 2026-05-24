@@ -1,36 +1,212 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Allo Reservation System
 
-## Getting Started
+A full-stack reservation system built with Next.js, Prisma, PostgreSQL (Neon), and TypeScript.
 
-First, run the development server:
+---
+
+# Features
+
+- Product inventory management across multiple warehouses
+- Reserve inventory items
+- Reservation countdown timer
+- Confirm purchase flow
+- Cancel reservation flow
+- Automatic reservation expiry
+- Concurrency-safe reservation handling
+- Real-time UI updates without manual refresh
+- Proper HTTP error handling (404, 409, 410)
+
+---
+
+# Tech Stack
+
+- Next.js 15
+- TypeScript
+- Prisma ORM
+- PostgreSQL (Neon)
+- Tailwind CSS
+- Vercel
+
+---
+
+# Local Setup
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/Daya-12345/allo-reservation-system.git
+cd allo-reservation-system
+```
+
+---
+
+## 2. Install Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 3. Configure Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+DATABASE_URL="your_neon_database_url"
+```
+
+---
+
+## 4. Run Prisma Migrations
+
+```bash
+npx prisma migrate deploy
+```
+
+---
+
+## 5. Seed Database
+
+```bash
+npm run seed
+```
+
+---
+
+## 6. Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Application runs at:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```txt
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+# Reservation Flow
 
-To learn more about Next.js, take a look at the following resources:
+1. User selects a product inventory.
+2. A reservation is created.
+3. Reserved stock is deducted from available inventory.
+4. User receives a countdown timer.
+5. User can:
+   - Confirm purchase
+   - Cancel reservation
+   - Allow reservation to expire automatically
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Reservation Expiry Mechanism
 
-## Deploy on Vercel
+Each reservation stores an `expiresAt` timestamp.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The frontend continuously checks remaining time and displays a live countdown timer.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+When the timer expires:
+- Reservation status becomes `EXPIRED`
+- Reserved stock is released back to inventory
+- API returns HTTP `410 Gone`
+
+A dedicated expiry endpoint handles cleanup safely.
+
+---
+
+# Concurrency Handling
+
+Inventory reservations are protected using Prisma database transactions.
+
+The reservation endpoint:
+- Reads inventory inside a transaction
+- Verifies stock availability
+- Updates reserved stock atomically
+
+This guarantees:
+- Only one request can reserve the last available item
+- Simultaneous requests are handled safely
+- Overselling inventory is prevented
+
+If inventory is unavailable, the API returns:
+
+```txt
+409 Conflict
+```
+
+---
+
+# HTTP Status Codes
+
+| Status | Meaning |
+|---|---|
+| 200 | Success |
+| 404 | Resource not found |
+| 409 | Conflict / insufficient stock |
+| 410 | Reservation expired |
+| 500 | Internal server error |
+
+---
+
+# Real-Time UI Updates
+
+The UI updates automatically after:
+- Reservation confirmation
+- Reservation cancellation
+- Reservation expiry
+
+This is handled using:
+- `router.refresh()`
+- Local state updates
+
+No manual browser refresh is required.
+
+---
+
+# Project Structure
+
+```txt
+src/
+ ├── app/
+ │    ├── api/
+ │    ├── reservations/
+ │    ├── page.tsx
+ │
+ ├── lib/
+ │    └── prisma.ts
+ │
+prisma/
+ ├── schema.prisma
+ ├── seed.ts
+ └── migrations/
+```
+
+---
+
+# Trade-offs / Future Improvements
+
+With more development time, the following improvements could be added:
+
+- Background cron jobs for automatic expiry cleanup
+- WebSocket-based live inventory synchronization
+- Authentication and user accounts
+- Reservation history tracking
+- Automated unit and integration testing
+- Docker support
+- Improved UI responsiveness
+- Better retry/error handling
+- Distributed locking for large-scale concurrency
+
+---
+
+# Deployment
+
+The application is deployed on Vercel.
+
+---
+
+# Author
+
+Daya-12345
