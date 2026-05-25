@@ -1,6 +1,6 @@
-# Allo Reservation System
+# Inventory Reservation System
 
-A full-stack reservation system built with Next.js, Prisma, PostgreSQL (Neon), and TypeScript.
+A full-stack Inventory reservation system built with Next.js, Prisma, PostgreSQL (Neon), and TypeScript.
 
 ---
 
