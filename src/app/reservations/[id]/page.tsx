@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface Reservation {
   id: string;
@@ -85,7 +86,7 @@ export default function ReservationPage() {
               status: "EXPIRED",
             });
 
-            setError("Reservation expired");
+            toast.error("Reservation expired");
 
             return;
         }
@@ -106,8 +107,10 @@ export default function ReservationPage() {
   if (!reservation) {
 
     return (
-      <div className="p-10 text-xl">
-        Loading reservation...
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="animate-pulse text-3xl font-bold">
+          Loading Reservation...
+        </div>
       </div>
     );
   }
@@ -116,7 +119,7 @@ export default function ReservationPage() {
   async function confirmReservation() {
 
     if (!reservation?.id) {
-      setError("Invalid reservation");
+      toast.error("Invalid reservation");
       return;
     }
 
@@ -130,11 +133,11 @@ export default function ReservationPage() {
     const data = await response.json();
 
     if (!response.ok) {
-      setError(data.message);
+      toast.error(data.message);
       return;
     }
 
-    alert(data.message);
+    toast.success(data.message);
 
     router.push("/");
   }
@@ -143,7 +146,7 @@ export default function ReservationPage() {
   async function releaseReservation() {
 
     if (!reservation?.id) {
-      setError("Invalid reservation");
+      toast.error("Invalid reservation");
       return;
     }
 
@@ -157,22 +160,22 @@ export default function ReservationPage() {
     const data = await response.json();
 
     if (!response.ok) {
-      setError(data.message);
+      toast.error(data.message);
       return;
     }
 
-    alert(data.message);
+    toast.success(data.message);
 
     router.push("/");
   }
 
   return (
 
-    <main className="min-h-screen bg-black text-white p-10">
+    <main className="min-h-screen bg-gradient-to-br from-black via-zinc-950 to-zinc-900 text-white p-10">
 
-      <div className="max-w-xl mx-auto bg-zinc-900 p-8 rounded-xl border border-zinc-700">
+      <div className="max-w-2xl mx-auto bg-zinc-900/90 backdrop-blur-sm p-10 rounded-3xl border border-zinc-800 shadow-2xl animate-fadeIn">
 
-        <h1 className="text-4xl font-bold mb-6">
+        <h1 className="text-5xl font-extrabold mb-8 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
           Reservation Checkout
         </h1>
 
@@ -205,13 +208,23 @@ export default function ReservationPage() {
           </div>
 
           <div>
-            <p className="text-zinc-400">
+            <p className="text-zinc-400 mb-2">
               Status
             </p>
 
-            <p className="text-yellow-400 font-bold">
+            <span
+              className={`px-4 py-1 rounded-full text-sm font-bold ${
+                reservation.status === "PENDING"
+                  ? "bg-yellow-500 text-black"
+                  : reservation.status === "CONFIRMED"
+                  ? "bg-green-600 text-white"
+                  : reservation.status === "CANCELLED"
+                  ? "bg-red-600 text-white"
+                  : "bg-gray-600 text-white"
+              }`}
+            >
               {reservation.status}
-            </p>
+            </span>
           </div>
 
           <div>
@@ -219,9 +232,11 @@ export default function ReservationPage() {
               Time Remaining
             </p>
 
-            <p className="text-red-400 text-2xl font-bold">
-              {timeLeft}
-            </p>
+            <div className="bg-black border border-red-500 rounded-xl px-6 py-4 inline-block shadow-lg shadow-red-500/20">
+              <p className="text-red-400 text-3xl font-extrabold tracking-widest">
+                {timeLeft}
+              </p>
+            </div>
           </div>
 
         </div>
@@ -233,7 +248,7 @@ export default function ReservationPage() {
                   !reservation ||
                   reservation.status !== "PENDING"
                 }
-                className="bg-green-600 px-4 py-2 rounded disabled:opacity-50"
+                className="bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-200 px-4 py-2 rounded-lg font-semibold shadow-md disabled:opacity-50"
                 >
                 Confirm Purchase
                 </button>
@@ -244,7 +259,7 @@ export default function ReservationPage() {
                   !reservation ||
                   reservation.status !== "PENDING"
                 }
-                className="bg-red-600 px-4 py-2 rounded disabled:opacity-50"
+                className="bg-red-600 hover:bg-red-700 hover:scale-105 transition-all duration-200 px-4 py-2 rounded-lg font-semibold shadow-md disabled:opacity-50"
                 >
                 Cancel Reservation
                 </button>
@@ -253,7 +268,7 @@ export default function ReservationPage() {
             <div className="mt-4">
               <button
                 onClick={() => router.push("/")}
-                className="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded"
+                className="w-full bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-200 px-6 py-3 rounded-lg font-semibold shadow-md"
               >
                 Back to Inventory
               </button>

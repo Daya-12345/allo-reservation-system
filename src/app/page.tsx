@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import toast from "react-hot-toast";
+
 interface Warehouse {
   id: string;
   name: string;
@@ -51,8 +53,8 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen p-10 bg-black text-white">
-      <h1 className="text-4xl font-bold mb-8">
+    <main className="min-h-screen p-10 bg-gradient-to-br from-black via-zinc-950 to-zinc-900 text-white">
+      <h1 className="text-5xl font-extrabold mb-10 tracking-tight bg-gradient-to-r from-white to-zinc-500 bg-clip-text text-transparent">
         Inventory Dashboard
       </h1>
 
@@ -60,7 +62,7 @@ export default function Home() {
         {products.map((product) => (
           <div
             key={product.id}
-            className="bg-zinc-900 rounded-xl shadow-md p-6 border border-zinc-700"
+            className="animate-fadeUp bg-zinc-900/70 backdrop-blur-md rounded-3xl shadow-2xl p-8 border border-zinc-800 hover:border-blue-500 transition-all duration-300 hover:scale-[1.01]"
           >
             <h2 className="text-2xl font-semibold">
               {product.name}
@@ -74,7 +76,7 @@ export default function Home() {
               {product.inventories.map((inventory) => (
                 <div
                   key={inventory.id}
-                  className="border border-zinc-700 rounded-lg p-4 bg-zinc-800"
+                  className="border border-zinc-700/50 rounded-2xl p-5 bg-zinc-800/60 backdrop-blur-sm hover:bg-zinc-800 transition-all duration-300 shadow-lg"
                 >
                   <h3 className="font-bold text-lg">
                     {inventory.warehouse.name}
@@ -92,14 +94,13 @@ export default function Home() {
                     Reserved Stock: {inventory.reservedStock}
                   </p>
 
-                  <p>
+                  <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 font-medium">
                     Available Stock:{" "}
-                    {inventory.totalStock -
-                      inventory.reservedStock}
-                  </p>
+                    {inventory.totalStock - inventory.reservedStock}
+                  </div>
 
                   <button
-                    className="mt-4 bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
+                    className="mt-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 px-5 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-blue-500/30 hover:scale-105"
                     onClick={async () => {
                       const reservationResponse = await fetch("/api/reservations", {
                         method: "POST",
@@ -118,7 +119,7 @@ export default function Home() {
                     // EXISTING ACTIVE RESERVATION
                     if (reservationData.resumed) {
 
-                      alert("Existing reservation resumed");
+                      toast.success("Existing reservation resumed");
 
                       window.location.href =
                         `/reservations/${reservationData.reservation.id}`;
@@ -128,7 +129,7 @@ export default function Home() {
 
                     // OTHER ERRORS
                     if (!reservationResponse.ok) {
-                      alert(reservationData.message);
+                      toast.error(reservationData.message);
                       return;
                     }
 
