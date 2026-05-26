@@ -31,10 +31,6 @@ export default function ReservationPage() {
   const [error, setError] =
     useState("");
 
-  const isDisabled =
-    reservation?.status === "CONFIRMED" ||
-    reservation?.status === "CANCELLED";
-
   // FETCH RESERVATION
   useEffect(() => {
 
@@ -119,7 +115,10 @@ export default function ReservationPage() {
   // CONFIRM
   async function confirmReservation() {
 
-    if (!reservation) return;
+    if (!reservation?.id) {
+      setError("Invalid reservation");
+      return;
+    }
 
     const response = await fetch(
       `/api/reservations/${reservation.id}/confirm`,
@@ -143,7 +142,10 @@ export default function ReservationPage() {
   // CANCEL / RELEASE
   async function releaseReservation() {
 
-    if (!reservation) return;
+    if (!reservation?.id) {
+      setError("Invalid reservation");
+      return;
+    }
 
     const response = await fetch(
       `/api/reservations/${reservation.id}/release`,
@@ -227,16 +229,22 @@ export default function ReservationPage() {
             <div className="flex gap-4 mt-6">
                 <button
                 onClick={confirmReservation}
-                disabled={isDisabled}
-                className="bg-green-600 px-6 py-3 rounded disabled:bg-gray-600"
+                disabled={
+                  !reservation ||
+                  reservation.status !== "PENDING"
+                }
+                className="bg-green-600 px-4 py-2 rounded disabled:opacity-50"
                 >
                 Confirm Purchase
                 </button>
 
                 <button
                 onClick={releaseReservation}
-                disabled={isDisabled}
-                className="bg-red-600 px-6 py-3 rounded disabled:bg-gray-600"
+                disabled={
+                  !reservation ||
+                  reservation.status !== "PENDING"
+                }
+                className="bg-red-600 px-4 py-2 rounded disabled:opacity-50"
                 >
                 Cancel Reservation
                 </button>

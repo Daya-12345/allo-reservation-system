@@ -116,19 +116,13 @@ export default function Home() {
                      const reservationData = await reservationResponse.json();
 
                     // EXISTING ACTIVE RESERVATION
-                    if (reservationResponse.status === 409) {
+                    if (reservationData.resumed) {
 
-                      if (reservationData.reservationId) {
+                      alert("Existing reservation resumed");
 
-                        alert("You already have an active reservation.");
+                      window.location.href =
+                        `/reservations/${reservationData.reservation.id}`;
 
-                        window.location.href =
-                          `/reservations/${reservationData.reservationId}`;
-                        
-                        return;
-                      }
-
-                      alert(reservationData.message);
                       return;
                     }
 
@@ -140,7 +134,7 @@ export default function Home() {
 
                     // SUCCESS
                     window.location.href =
-                      `/reservations/${reservationData.id}`;
+                      `/reservations/${reservationData.reservation.id}`;
                     }}
                   >
                     Reserve 1 Item

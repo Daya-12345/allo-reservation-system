@@ -7,6 +7,25 @@ export async function POST(req: Request) {
 
     const { productId, warehouseId, quantity } = body;
 
+    // CHECK EXISTING ACTIVE RESERVATION
+    const existingReservation = await prisma.reservation.findFirst({
+      where: {
+        productId,
+        warehouseId,
+        status: "PENDING",
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
+
+    if (existingReservation) {
+      return NextResponse.json({
+        reservation: existingReservation,
+        resumed: true,
+      });
+    }
+
     const reservation = await prisma.$transaction(async (tx) => {
       // FIND INVENTORY
       const inventory = await tx.inventory.findUnique({
@@ -58,12 +77,15 @@ export async function POST(req: Request) {
           warehouseId,
           quantity,
           status: "PENDING",
-          expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+          expiresAt: new Date(Date.now() + 10 * 60 * 1000),
         },
       });
     });
 
-    return NextResponse.json(reservation);
+    return NextResponse.json({
+      reservation,
+      resumed: false,
+    });
 
   } catch (error: unknown) {
     console.error(error);
