@@ -203,7 +203,9 @@ With more development time, the following improvements could be added:
 
 # Deployment
 
-The application is deployed on Vercel.
+The application is deployed on Vercel. 
+
+Live link (Vercel): https://allo-reservation-system-phi.vercel.app/
 
 ---
 
